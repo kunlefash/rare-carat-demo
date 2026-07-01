@@ -149,8 +149,8 @@ function CompareModal({ diamonds, onClose, onRemove }: {
           <div className={`grid gap-4 mb-6 ${diamonds.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-2'}`}>
             {diamonds.map((d) => (
               <div key={d.id} className="text-center">
-                <div className="relative h-48 rounded-xl overflow-hidden bg-[#F5F7FA] mb-3">
-                  <Image src={d.img} alt={`${d.carat}ct ${d.shape}`} fill className="object-cover" />
+                <div className="relative h-48 rounded-xl overflow-hidden mb-3" style={{ backgroundColor: d.imgBg }}>
+                  <Image src={d.img} alt={`${d.carat}ct ${d.shape}`} fill className={d.imgBg === '#ffffff' ? 'object-contain p-4' : 'object-cover'} />
                   <button
                     onClick={() => onRemove(d.id)}
                     className="absolute top-2 right-2 bg-white/80 hover:bg-white rounded-full w-6 h-6 flex items-center justify-center shadow text-gray-500 hover:text-red-500 transition-colors"
@@ -266,29 +266,23 @@ const CUT_MEANINGS: Record<string, string> = {
   'Good': 'Good — reflects most light that enters the diamond',
 };
 
-// Real Unsplash loose diamond photos — consistent via photo ID
-const DIAMOND_IMAGES = [
-  'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500&h=500&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500&h=500&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500&h=500&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=500&h=500&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1600119574904-a03c88ee8cd5?w=500&h=500&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=500&h=500&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1589674781759-c21c37956a44?w=500&h=500&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?w=500&h=500&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?w=500&h=500&fit=crop&q=85',
-];
+// Local diamond photos — save the 3 images to /public/diamonds/ (see README)
+const IMG = {
+  pear:    { src: '/diamonds/diamond-pear.jpg',           bg: '#ffffff' },
+  sparkle: { src: '/diamonds/diamond-round-sparkle.jpg',  bg: '#050505' },
+  dark:    { src: '/diamonds/diamond-round-dark.jpg',     bg: '#111827' },
+};
 
 const MOCK_RESULTS = [
-  { id: 'oval-001', carat: 2.03, shape: 'Oval', color: 'I', clarity: 'VVS2', cut: 'Excellent Cut', price: 1005, compValue: 1450, quality: '18/18', cert: 'IGI', label: 'Overall pick', labelBg: '#5BA832', img: DIAMOND_IMAGES[0] },
-  { id: 'oval-002', carat: 2.59, shape: 'Oval', color: 'J', clarity: 'VS1',  cut: 'Excellent Cut', price: 1350, compValue: 2000, quality: '18/18', cert: 'IGI', label: 'Biggest size',    labelBg: '#6D28D9', img: DIAMOND_IMAGES[1] },
-  { id: 'oval-003', carat: 1.90, shape: 'Oval', color: 'D', clarity: 'VS1',  cut: 'Excellent Cut', price: 1225, compValue: 1782, quality: '17/18', cert: 'GIA', label: 'Highest quality', labelBg: '#1D4ED8', img: DIAMOND_IMAGES[2] },
-  { id: 'oval-004', carat: 2.14, shape: 'Oval', color: 'H', clarity: 'VS2',  cut: 'RC Ideal Cut',  price: 1180, compValue: 1720, quality: '18/18', cert: 'IGI', label: null, labelBg: null, img: DIAMOND_IMAGES[3] },
-  { id: 'oval-005', carat: 1.76, shape: 'Oval', color: 'G', clarity: 'SI1',  cut: 'Excellent Cut', price:  890, compValue: 1310, quality: '17/18', cert: 'IGI', label: null, labelBg: null, img: DIAMOND_IMAGES[4] },
-  { id: 'oval-006', carat: 2.31, shape: 'Oval', color: 'I', clarity: 'VS1',  cut: 'RC Ideal Cut',  price: 1420, compValue: 2100, quality: '18/18', cert: 'GCAL',label: null, labelBg: null, img: DIAMOND_IMAGES[5] },
-  { id: 'oval-007', carat: 1.52, shape: 'Oval', color: 'F', clarity: 'VVS1', cut: 'Excellent Cut', price: 1050, compValue: 1580, quality: '18/18', cert: 'GIA', label: null, labelBg: null, img: DIAMOND_IMAGES[6] },
-  { id: 'oval-008', carat: 2.47, shape: 'Oval', color: 'H', clarity: 'VS2',  cut: 'RC Ideal Cut',  price: 1680, compValue: 2450, quality: '18/18', cert: 'IGI', label: null, labelBg: null, img: DIAMOND_IMAGES[7] },
-  { id: 'oval-009', carat: 1.88, shape: 'Oval', color: 'J', clarity: 'SI1',  cut: 'Excellent Cut', price:  820, compValue: 1240, quality: '16/18', cert: 'IGI', label: null, labelBg: null, img: DIAMOND_IMAGES[8] },
+  { id: 'oval-001', carat: 2.03, shape: 'Oval', color: 'I', clarity: 'VVS2', cut: 'Excellent Cut', price: 1005, compValue: 1450, quality: '18/18', cert: 'IGI', label: 'Overall pick',    labelBg: '#5BA832', img: IMG.pear.src,    imgBg: IMG.pear.bg    },
+  { id: 'oval-002', carat: 2.59, shape: 'Oval', color: 'J', clarity: 'VS1',  cut: 'Excellent Cut', price: 1350, compValue: 2000, quality: '18/18', cert: 'IGI', label: 'Biggest size',    labelBg: '#6D28D9', img: IMG.sparkle.src, imgBg: IMG.sparkle.bg },
+  { id: 'oval-003', carat: 1.90, shape: 'Oval', color: 'D', clarity: 'VS1',  cut: 'Excellent Cut', price: 1225, compValue: 1782, quality: '17/18', cert: 'GIA', label: 'Highest quality', labelBg: '#1D4ED8', img: IMG.dark.src,    imgBg: IMG.dark.bg    },
+  { id: 'oval-004', carat: 2.14, shape: 'Oval', color: 'H', clarity: 'VS2',  cut: 'RC Ideal Cut',  price: 1180, compValue: 1720, quality: '18/18', cert: 'IGI', label: null, labelBg: null, img: IMG.sparkle.src, imgBg: IMG.sparkle.bg },
+  { id: 'oval-005', carat: 1.76, shape: 'Oval', color: 'G', clarity: 'SI1',  cut: 'Excellent Cut', price:  890, compValue: 1310, quality: '17/18', cert: 'IGI', label: null, labelBg: null, img: IMG.pear.src,    imgBg: IMG.pear.bg    },
+  { id: 'oval-006', carat: 2.31, shape: 'Oval', color: 'I', clarity: 'VS1',  cut: 'RC Ideal Cut',  price: 1420, compValue: 2100, quality: '18/18', cert: 'GCAL',label: null, labelBg: null, img: IMG.dark.src,    imgBg: IMG.dark.bg    },
+  { id: 'oval-007', carat: 1.52, shape: 'Oval', color: 'F', clarity: 'VVS1', cut: 'Excellent Cut', price: 1050, compValue: 1580, quality: '18/18', cert: 'GIA', label: null, labelBg: null, img: IMG.sparkle.src, imgBg: IMG.sparkle.bg },
+  { id: 'oval-008', carat: 2.47, shape: 'Oval', color: 'H', clarity: 'VS2',  cut: 'RC Ideal Cut',  price: 1680, compValue: 2450, quality: '18/18', cert: 'IGI', label: null, labelBg: null, img: IMG.dark.src,    imgBg: IMG.dark.bg    },
+  { id: 'oval-009', carat: 1.88, shape: 'Oval', color: 'J', clarity: 'SI1',  cut: 'Excellent Cut', price:  820, compValue: 1240, quality: '16/18', cert: 'IGI', label: null, labelBg: null, img: IMG.pear.src,    imgBg: IMG.pear.bg    },
 ];
 
 // ─── Shape SVG ────────────────────────────────────────────────────────────────
@@ -394,12 +388,12 @@ function DiamondCard({
     <div className={`border rounded-lg overflow-hidden hover:shadow-md transition-all bg-white group ${inCompare ? 'border-[#4B5EFF] ring-2 ring-[#4B5EFF]/20' : 'border-gray-200'}`}>
       {/* Image */}
       <Link href={`/rare-carat/diamond/${d.id}`} className="block">
-        <div className="relative h-44 bg-[#F5F7FA]">
+        <div className="relative h-44" style={{ backgroundColor: d.imgBg }}>
           <Image
             src={d.img}
             alt={`${d.carat.toFixed(2)}ct ${d.shape} diamond`}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className={`transition-transform duration-300 group-hover:scale-105 ${d.imgBg === '#ffffff' ? 'object-contain p-3' : 'object-cover'}`}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
           {saleBadge && !d.label && (
