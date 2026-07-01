@@ -1,8 +1,96 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+
+// ─── Lab vs Natural modal ─────────────────────────────────────────────────────
+function LabVsNaturalModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  const rows = [
+    { label: 'Origin', lab: 'Grown in a lab in weeks', natural: 'Formed underground over billions of years' },
+    { label: 'Chemistry', lab: 'Identical to natural — same carbon crystal structure', natural: 'Identical to lab — same carbon crystal structure' },
+    { label: 'Price', lab: '60–80% less than natural', natural: 'Significantly higher; reflects rarity' },
+    { label: 'Sparkle', lab: 'Exactly the same — indistinguishable even to experts', natural: 'Exactly the same — indistinguishable even to experts' },
+    { label: 'Certifications', lab: 'IGI, GCAL (most common)', natural: 'GIA, IGI (most common)' },
+    { label: 'Eco impact', lab: 'Lower mining footprint', natural: 'Mining-intensive; varies by source' },
+    { label: 'Resale value', lab: 'Rapidly declining as prices fall', natural: 'Holds value better historically' },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div
+        className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+          <h2 className="text-lg font-bold text-[#1B2D44]">Lab vs. Natural Diamonds</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="px-6 py-5">
+          <p className="text-sm text-gray-500 mb-5">
+            The short answer: they&apos;re the <strong className="text-gray-800">same diamond</strong>, just made differently.
+            Lab diamonds aren&apos;t fake — they have the exact same physical, chemical, and optical properties as mined diamonds.
+          </p>
+
+          {/* Comparison table */}
+          <div className="border border-gray-200 rounded-xl overflow-hidden">
+            <div className="grid grid-cols-3 bg-[#F8FAFC] text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+              <div className="px-4 py-3"></div>
+              <div className="px-4 py-3 border-l border-gray-200 text-[#4B5EFF]">✦ Lab Grown</div>
+              <div className="px-4 py-3 border-l border-gray-200">Natural</div>
+            </div>
+            {rows.map((row, i) => (
+              <div key={row.label} className={`grid grid-cols-3 text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'}`}>
+                <div className="px-4 py-3 font-semibold text-gray-700 text-xs">{row.label}</div>
+                <div className="px-4 py-3 text-gray-600 text-xs border-l border-gray-100">{row.lab}</div>
+                <div className="px-4 py-3 text-gray-600 text-xs border-l border-gray-100">{row.natural}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom callout */}
+          <div className="mt-5 bg-[#f0f2ff] border border-[#4B5EFF]/20 rounded-xl p-4">
+            <p className="text-sm font-semibold text-[#1B2D44] mb-1">Which should you choose?</p>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              If budget and size matter most → <strong>lab grown</strong>. You get a bigger, higher-quality stone for the same price.
+              If long-term resale or sentimental rarity matters → <strong>natural</strong>.
+              Either way, nobody can tell the difference by looking.
+            </p>
+          </div>
+
+          <div className="mt-5 flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 bg-[#1B2D44] text-white font-semibold py-2.5 rounded-full text-sm hover:bg-[#253f5e] transition-colors"
+            >
+              Got it
+            </button>
+            <Link
+              href="/rare-carat/quiz"
+              onClick={onClose}
+              className="flex-1 border-2 border-[#1B2D44] text-[#1B2D44] font-semibold py-2.5 rounded-full text-sm text-center hover:bg-gray-50 transition-colors"
+            >
+              Help me decide →
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -199,6 +287,7 @@ function SearchContent() {
   const fromRec = searchParams.get('recommended') === '1';
 
   const [origin, setOrigin] = useState<'lab' | 'natural'>('lab');
+  const [labModalOpen, setLabModalOpen] = useState(false);
   const [selectedShape, setSelectedShape] = useState(initShape);
   const [colorIdx, setColorIdx] = useState(3);         // default H
   const [clarityIdx, setClarityIdx] = useState(3);     // default VS1
@@ -223,6 +312,8 @@ function SearchContent() {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+
+      {labModalOpen && <LabVsNaturalModal onClose={() => setLabModalOpen(false)} />}
 
       {/* ── Announcement bar ───────────────────────────────────── */}
       <div className="bg-[#8B1818] text-white text-xs py-2 px-4 flex items-center justify-between">
@@ -342,7 +433,7 @@ function SearchContent() {
                 Natural
               </button>
             </div>
-            <button className="ml-4 text-sm text-[#4B5EFF] hover:underline">What&apos;s the difference?</button>
+            <button onClick={() => setLabModalOpen(true)} className="ml-4 text-sm text-[#4B5EFF] hover:underline">What&apos;s the difference?</button>
           </div>
 
           {/* ── BASIC FILTERS ── */}
