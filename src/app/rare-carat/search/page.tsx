@@ -266,6 +266,29 @@ const CUT_MEANINGS: Record<string, string> = {
   'Good': 'Good — reflects most light that enters the diamond',
 };
 
+const FLUORESCENCE_LABELS = ['Very Strong', 'Strong', 'Medium', 'Faint', 'None'];
+const FLUORESCENCE_MEANINGS: Record<string, string> = {
+  'Very Strong': 'Intense blue glow under UV — can make some diamonds look hazy in sunlight',
+  'Strong': 'Noticeable blue glow — may slightly affect face-up appearance outdoors',
+  'Medium': 'Moderate glow — rarely impacts appearance, sometimes improves near-colorless stones',
+  'Faint': 'Barely perceptible — no meaningful effect on appearance',
+  'None': 'No fluorescence at all — recommended choice for colorless (D–F) diamonds',
+};
+
+const POLISH_LABELS = ['Good', 'Very Good', 'Excellent'];
+const POLISH_MEANINGS: Record<string, string> = {
+  'Good': 'Minor surface features visible under 10× — doesn\'t affect sparkle noticeably',
+  'Very Good': 'Very smooth finish with negligible surface marks',
+  'Excellent': 'Near-perfect surface — maximizes light entry and reflection',
+};
+
+const SYMMETRY_LABELS = ['Good', 'Very Good', 'Excellent'];
+const SYMMETRY_MEANINGS: Record<string, string> = {
+  'Good': 'Slight misalignment of facets — visible only under magnification',
+  'Very Good': 'Minor deviations not visible to the naked eye',
+  'Excellent': 'All facets align precisely — required for maximum sparkle',
+};
+
 // Local diamond photos — save the 3 images to /public/diamonds/ (see README)
 const IMG = {
   pear:    { src: '/diamonds/diamond-pear.jpg',           bg: '#ffffff' },
@@ -364,6 +387,42 @@ function LabeledRangeSlider({
           <strong>{hovered}</strong> — {tooltipMap[hovered]}
         </p>
       )}
+    </div>
+  );
+}
+
+// ─── Min/Max filter with two inputs ──────────────────────────────────────────
+function MinMaxFilter({
+  label, tooltip, minVal, maxVal, onMinChange, onMaxChange, unit = '', step = 1,
+}: {
+  label: string; tooltip: string;
+  minVal: string; maxVal: string;
+  onMinChange: (v: string) => void; onMaxChange: (v: string) => void;
+  unit?: string; step?: number;
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-1 mb-2">
+        <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">{label}</span>
+        <InfoIcon tooltip={tooltip} />
+      </div>
+      <input type="range" className="w-full h-1 appearance-none bg-gray-200 rounded-full accent-[#1B2D44] cursor-pointer mb-2" readOnly />
+      <div className="flex items-center gap-2">
+        <input
+          type="number" step={step} value={minVal}
+          onChange={(e) => onMinChange(e.target.value)}
+          className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-[#1B2D44]"
+          placeholder={`Min${unit}`}
+        />
+        <span className="text-gray-400 text-xs flex-shrink-0">–</span>
+        <input
+          type="number" step={step} value={maxVal}
+          onChange={(e) => onMaxChange(e.target.value)}
+          className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-[#1B2D44]"
+          placeholder={`Max${unit}`}
+        />
+      </div>
+      {unit && <p className="text-[10px] text-gray-400 mt-1">{unit === '%' ? 'Percentage' : unit === 'mm' ? 'Millimetres' : ''}</p>}
     </div>
   );
 }
@@ -467,12 +526,27 @@ function SearchContent() {
   const compareDiamonds = MOCK_RESULTS.filter((d) => compareIds.includes(d.id));
   const [selectedShape, setSelectedShape] = useState(initShape);
   const [colorIdx, setColorIdx] = useState(3);         // default H
-  const [clarityIdx, setClarityIdx] = useState(3);     // default VS1
-  const [cutIdx, setCutIdx] = useState(3);             // default RC Ideal
-  const [caratMax, setCaratMax] = useState(70);        // index on 0-100 slider
+  const [clarityIdx, setClarityIdx] = useState(3);
+  const [cutIdx, setCutIdx] = useState(3);
+  const [caratMax, setCaratMax] = useState(70);
   const [priceMin, setPriceMin] = useState('$350');
   const [priceMax, setPriceMax] = useState('$4,000,000');
   const [advOpen, setAdvOpen] = useState(false);
+  // Advanced filter state
+  const [fluorescenceIdx, setFluorescenceIdx] = useState(4);  // default None
+  const [tableMin, setTableMin] = useState('0');
+  const [tableMax, setTableMax] = useState('100');
+  const [depthMin, setDepthMin] = useState('0');
+  const [depthMax, setDepthMax] = useState('100');
+  const [polishIdx, setPolishIdx] = useState(2);       // default Excellent
+  const [symmetryIdx, setSymmetryIdx] = useState(2);  // default Excellent
+  const [lwMin, setLwMin] = useState('1');
+  const [lwMax, setLwMax] = useState('2.75');
+  const [lengthMin, setLengthMin] = useState('3');
+  const [lengthMax, setLengthMax] = useState('20');
+  const [widthMin, setWidthMin] = useState('3');
+  const [widthMax, setWidthMax] = useState('20');
+  const [selectedCerts, setSelectedCerts] = useState<string[]>([]);
   const [quickShip, setQuickShip] = useState(false);
   const [imgFilter, setImgFilter] = useState(true);
   const [view, setView] = useState<'visual' | 'list'>('visual');
@@ -687,55 +761,133 @@ function SearchContent() {
             <div>
               <button
                 onClick={() => setAdvOpen((v) => !v)}
-                className="flex items-center gap-2 text-sm font-semibold text-[#4B5EFF] hover:text-[#3a4ecc]"
+                className="flex w-full items-center justify-between text-sm font-semibold text-[#1B2D44] hover:text-[#3a4ecc] border border-gray-200 rounded-xl px-4 py-3 bg-[#F8FAFC]"
               >
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className={`transition-transform ${advOpen ? 'rotate-180' : ''}`}>
+                <span className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
+                  Advanced Diamond Filters
+                  {!advOpen && <span className="text-gray-400 font-normal text-xs">(Carat · Clarity · Cut · Fluorescence + more)</span>}
+                </span>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className={`transition-transform flex-shrink-0 ${advOpen ? 'rotate-180' : ''}`}>
                   <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
-                {advOpen ? 'Hide' : 'Show'} advanced filters
-                {!advOpen && <span className="text-gray-400 font-normal">(Carat · Clarity · Cut)</span>}
               </button>
 
               {advOpen && (
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  {/* Carat */}
+                <div className="mt-4 border border-gray-200 rounded-xl p-5 space-y-7">
+
+                  {/* Certification */}
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1">
-                        CARAT
-                        <InfoIcon tooltip="Carat is the weight of the diamond. Bigger isn't always better — a well-cut 1.8ct can look larger than a poorly-cut 2ct." />
-                      </span>
-                      <span className="text-xs text-gray-500">0 – {(caratMax / 20).toFixed(1)}ct</span>
+                    <div className="flex items-center gap-1 mb-3">
+                      <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">CERTIFICATION</span>
+                      <InfoIcon tooltip="Diamond certifications are grading reports from independent labs. GIA is the gold standard; IGI and GCAL are also reputable and common on lab-grown diamonds." />
                     </div>
-                    <input
-                      type="range" min={0} max={100} value={caratMax}
-                      onChange={(e) => setCaratMax(Number(e.target.value))}
-                      className="w-full h-1 appearance-none bg-gray-200 rounded-full accent-[#1B2D44] cursor-pointer"
-                    />
-                    <div className="flex justify-between mt-1.5 text-[10px] text-gray-400 font-medium">
-                      <span>0</span><span>100</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {['GIA', 'GCAL', 'IGI'].map((cert) => (
+                        <button
+                          key={cert}
+                          onClick={() => setSelectedCerts((prev) => prev.includes(cert) ? prev.filter((c) => c !== cert) : [...prev, cert])}
+                          className={`px-5 py-1.5 rounded-full border text-sm font-medium transition-all ${selectedCerts.includes(cert) ? 'border-[#4B5EFF] bg-[#f0f2ff] text-[#4B5EFF]' : 'border-gray-300 text-gray-600 hover:border-[#4B5EFF] hover:text-[#4B5EFF]'}`}
+                        >
+                          {cert}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Cut */}
-                  <LabeledRangeSlider
-                    label="CUT"
-                    tooltip="Cut determines how much a diamond sparkles. Rare Carat Ideal is our highest standard — stricter than GIA Excellent. Cut matters more than color or clarity."
-                    labels={CUT_LABELS}
-                    value={cutIdx}
-                    onChange={setCutIdx}
-                    tooltipMap={CUT_MEANINGS}
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+                    {/* Carat */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1">
+                          CARAT
+                          <InfoIcon tooltip="Carat is the weight of the diamond. Bigger isn't always better — a well-cut 1.8ct can look larger than a poorly-cut 2ct." />
+                        </span>
+                        <span className="text-xs text-gray-500">0 – {(caratMax / 20).toFixed(1)}ct</span>
+                      </div>
+                      <input
+                        type="range" min={0} max={100} value={caratMax}
+                        onChange={(e) => setCaratMax(Number(e.target.value))}
+                        className="w-full h-1 appearance-none bg-gray-200 rounded-full accent-[#1B2D44] cursor-pointer"
+                      />
+                      <div className="flex justify-between mt-1.5 text-[10px] text-gray-400"><span>0</span><span>5ct</span></div>
+                    </div>
 
-                  {/* Clarity */}
-                  <LabeledRangeSlider
-                    label="CLARITY"
-                    tooltip="Clarity grades the number of tiny imperfections (inclusions). VS2 and above are 'eye-clean' — you can't see the inclusions without a magnifying loupe."
-                    labels={CLARITY_LABELS}
-                    value={clarityIdx}
-                    onChange={setClarityIdx}
-                    tooltipMap={CLARITY_MEANINGS}
-                  />
+                    {/* Cut */}
+                    <LabeledRangeSlider
+                      label="CUT"
+                      tooltip="Cut determines how much a diamond sparkles. Rare Carat Ideal is our highest standard — stricter than GIA Excellent."
+                      labels={CUT_LABELS} value={cutIdx} onChange={setCutIdx} tooltipMap={CUT_MEANINGS}
+                    />
+
+                    {/* Clarity */}
+                    <LabeledRangeSlider
+                      label="CLARITY"
+                      tooltip="Clarity grades tiny imperfections. VS2 and above are 'eye-clean' — inclusions invisible without a loupe."
+                      labels={CLARITY_LABELS} value={clarityIdx} onChange={setClarityIdx} tooltipMap={CLARITY_MEANINGS}
+                    />
+
+                    {/* Fluorescence */}
+                    <LabeledRangeSlider
+                      label="FLUORESCENCE"
+                      tooltip="Fluorescence is a blue glow some diamonds emit under UV light. Most buyers prefer None or Faint — it doesn't affect sparkle indoors."
+                      labels={FLUORESCENCE_LABELS} value={fluorescenceIdx} onChange={setFluorescenceIdx} tooltipMap={FLUORESCENCE_MEANINGS}
+                    />
+
+                    {/* Polish */}
+                    <LabeledRangeSlider
+                      label="POLISH"
+                      tooltip="Polish describes how smooth the diamond's surface facets are. Excellent polish means more light enters the stone."
+                      labels={POLISH_LABELS} value={polishIdx} onChange={setPolishIdx} tooltipMap={POLISH_MEANINGS}
+                    />
+
+                    {/* Symmetry */}
+                    <LabeledRangeSlider
+                      label="SYMMETRY"
+                      tooltip="Symmetry measures how precisely the facets align. Excellent symmetry helps light reflect evenly for maximum brilliance."
+                      labels={SYMMETRY_LABELS} value={symmetryIdx} onChange={setSymmetryIdx} tooltipMap={SYMMETRY_MEANINGS}
+                    />
+
+                    {/* Table % */}
+                    <MinMaxFilter
+                      label="TABLE" unit="%"
+                      tooltip="Table is the large flat facet on top. 54–60% is ideal for rounds. Too small or too large reduces brilliance."
+                      minVal={tableMin} maxVal={tableMax}
+                      onMinChange={setTableMin} onMaxChange={setTableMax}
+                    />
+
+                    {/* Depth % */}
+                    <MinMaxFilter
+                      label="DEPTH" unit="%"
+                      tooltip="Depth is the diamond's height as a percentage of its width. 60–63% is ideal for round diamonds — outside that range, light leaks out the sides."
+                      minVal={depthMin} maxVal={depthMax}
+                      onMinChange={setDepthMin} onMaxChange={setDepthMax}
+                    />
+
+                    {/* L/W Ratio */}
+                    <MinMaxFilter
+                      label="L/W RATIO" unit="" step={0.01}
+                      tooltip="Length-to-width ratio describes a stone's elongation. A 1.0 ratio is perfectly square; 1.3–1.5 is the classic oval sweet spot."
+                      minVal={lwMin} maxVal={lwMax}
+                      onMinChange={setLwMin} onMaxChange={setLwMax}
+                    />
+
+                    {/* Length */}
+                    <MinMaxFilter
+                      label="LENGTH" unit="mm" step={0.5}
+                      tooltip="The longest measurement of the stone in millimetres. A 1ct round is ~6.4mm across."
+                      minVal={lengthMin} maxVal={lengthMax}
+                      onMinChange={setLengthMin} onMaxChange={setLengthMax}
+                    />
+
+                    {/* Width */}
+                    <MinMaxFilter
+                      label="WIDTH" unit="mm" step={0.5}
+                      tooltip="The shortest measurement of the stone in millimetres. Useful for checking if the stone fits your ring setting."
+                      minVal={widthMin} maxVal={widthMax}
+                      onMinChange={setWidthMin} onMaxChange={setWidthMax}
+                    />
+                  </div>
                 </div>
               )}
             </div>
