@@ -1,86 +1,61 @@
 import Link from 'next/link';
 
-const pressLogos = [
-  { name: 'The New York Times', text: 'The New York Times' },
-  { name: 'New York Post', text: 'New York Post' },
-  { name: 'Forbes', text: 'Forbes' },
-  { name: 'USA Today', text: 'USA TODAY' },
-];
-
-const categories = [
-  'Engagement rings',
-  'Earrings',
-  'Wedding rings',
-  'Necklaces',
-  '1 carat diamonds',
-  'Three stone',
-  'Solitaire',
-  'Hoops',
-];
-
 export default function RareCaratHomepage() {
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+
       {/* Announcement bar */}
-      <div className="bg-[#8B1818] text-white text-sm py-2 px-4 flex items-center justify-between">
-        <span className="hidden sm:block">(855) 720-4858</span>
+      <div className="bg-[#8B1818] text-white text-xs py-2 px-4 flex items-center justify-between">
+        <span className="hidden sm:block text-white/90">(855) 720-4858</span>
         <p className="text-center font-medium flex-1">
-          Summer Sale · Save up to 40%* · Diamonds, Rings and Jewelry
+          4th of July Sale · Save up to 40%* · Diamonds, Rings and Jewelry
         </p>
-        <div className="hidden sm:flex items-center gap-3 text-white/80 text-sm">
-          <a href="#" className="hover:text-white transition-colors">Contact us</a>
+        <div className="hidden sm:flex items-center gap-3 text-white/80 text-xs">
+          <a href="#" className="hover:text-white">Contact us</a>
           <span>|</span>
-          <a href="#" className="hover:text-white transition-colors">Sign in</a>
+          <a href="#" className="hover:text-white">Sign in</a>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-14">
-            {/* Logo */}
-            <Link href="/rare-carat" className="flex flex-col leading-none">
-              <span className="text-[#1B2D44] font-bold text-xl tracking-tight">
-                rare <span className="text-[#D946EF]">&#9829;</span> carat
-              </span>
-              <span className="text-[9px] text-gray-400 font-normal tracking-widest uppercase">
-                America&apos;s #1 Ring Marketplace
-              </span>
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/rare-carat" className="flex-shrink-0">
+              <div className="flex items-end gap-1 leading-none">
+                <span className="text-[#1B2D44] font-bold text-2xl" style={{ fontFamily: 'Georgia, serif' }}>
+                  rare
+                </span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="mb-0.5">
+                  <path d="M12 21C12 21 3 14.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.82 3.85 12 5C12.18 3.85 13.76 3 15.5 3C18.58 3 21 5.42 21 8.5C21 14.5 12 21 12 21Z" fill="#D946EF" />
+                </svg>
+                <span className="text-[#1B2D44] font-bold text-2xl" style={{ fontFamily: 'Georgia, serif' }}>
+                  carat
+                </span>
+              </div>
+              <p className="text-[9px] text-gray-400 uppercase tracking-widest mt-0.5">America&apos;s #1 Rated Jeweler</p>
             </Link>
 
-            {/* Nav links */}
-            <div className="hidden lg:flex items-center gap-6 text-[13px] text-gray-700 font-medium">
-              {['Engagement rings', 'Wedding bands', 'Diamonds', 'Earrings', 'Necklaces', 'Bracelets', 'Gifts'].map(
-                (item) => (
-                  <a key={item} href="#" className="hover:text-[#1B2D44] transition-colors whitespace-nowrap">
-                    {item}
-                  </a>
-                )
-              )}
+            <div className="hidden md:flex items-center gap-7 text-sm text-[#1B2D44] font-medium">
+              <a href="#" className="hover:opacity-70 transition-opacity">Engagement rings</a>
+              <a href="#" className="hover:opacity-70 transition-opacity">Wedding bands</a>
+              <a href="#" className="hover:opacity-70 transition-opacity">Diamonds</a>
+              <a href="#" className="hover:opacity-70 transition-opacity">Earrings</a>
+              <a href="#" className="hover:opacity-70 transition-opacity">Necklaces</a>
+              <a href="#" className="hover:opacity-70 transition-opacity">Bracelets</a>
+              <a href="#" className="hover:opacity-70 transition-opacity">Gifts</a>
             </div>
 
-            {/* Icons */}
-            <div className="flex items-center gap-2">
-              <button className="p-2 text-gray-500 hover:text-gray-800 transition-colors" aria-label="Search">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="M21 21l-4.35-4.35" />
-                </svg>
+            <div className="flex items-center gap-4">
+              <button className="text-[#1B2D44] hover:opacity-70">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               </button>
-              <button className="p-2 text-gray-500 hover:text-gray-800 transition-colors" aria-label="Wishlist">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
+              <button className="text-[#1B2D44] hover:opacity-70">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               </button>
-              <button className="p-2 text-gray-500 hover:text-gray-800 transition-colors relative" aria-label="Cart">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <circle cx="9" cy="21" r="1" />
-                  <circle cx="20" cy="21" r="1" />
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                </svg>
-                <span className="absolute top-1 right-1 bg-[#4B5EFF] text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                  0
-                </span>
+              <button className="relative text-[#1B2D44] hover:opacity-70">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                <span className="absolute -top-1.5 -right-1.5 bg-[#D946EF] text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold">2</span>
               </button>
             </div>
           </div>
@@ -88,126 +63,98 @@ export default function RareCaratHomepage() {
       </nav>
 
       {/* Hero */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left: Copy */}
-          <div className="max-w-lg">
-            <h1 className="text-[42px] sm:text-5xl font-bold text-[#1B2D44] leading-[1.1] tracking-tight mb-4">
+      <section className="bg-[#EEF2F7] py-20 px-6">
+        <div className="max-w-7xl mx-auto flex items-center gap-12">
+          <div className="flex-1 max-w-xl">
+            <h1 className="text-5xl font-bold text-[#1B2D44] mb-4 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
               The smarter way<br />to buy diamonds
             </h1>
-            <p className="text-gray-500 text-lg mb-8 leading-relaxed">
-              Tell us what matters — we&apos;ll find your stone. AI price and quality scores on 900,000+ lab and natural diamonds.
+            <p className="text-lg text-gray-600 mb-8">
+              Save up to 40%* by shopping with AI price and quality scores.
             </p>
-
-            {/* CTAs — KEY CHANGE: advisor is primary */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex items-center gap-4">
               <Link
-                href="/rare-carat/quiz"
-                className="inline-flex items-center justify-center gap-2 bg-[#1B2D44] text-white font-semibold px-7 py-3.5 rounded-full hover:bg-[#253f5e] transition-colors text-base shadow-sm"
+                href="/rare-carat/search"
+                className="bg-[#1B2D44] text-white font-semibold px-8 py-3.5 rounded-full hover:bg-[#253f5e] transition-colors text-base"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-                Find my diamond
+                Start with a diamond
               </Link>
               <Link
                 href="/rare-carat/search"
-                className="inline-flex items-center justify-center gap-2 border-2 border-[#1B2D44] text-[#1B2D44] font-semibold px-7 py-3.5 rounded-full hover:bg-gray-50 transition-colors text-base"
+                className="border-2 border-[#1B2D44] text-[#1B2D44] font-semibold px-8 py-3.5 rounded-full hover:bg-gray-50 transition-colors text-base"
               >
-                Search the catalog
+                Start with a setting
               </Link>
             </div>
+          </div>
 
-            {/* Press logos */}
-            <div className="flex items-center gap-6 mt-10 flex-wrap">
-              {pressLogos.map((logo) => (
-                <span key={logo.name} className="text-gray-300 font-semibold text-sm tracking-tight">
-                  {logo.text}
-                </span>
+          {/* Ring illustration */}
+          <div className="hidden md:flex flex-1 justify-center items-center">
+            <svg viewBox="0 0 300 280" width="300" height="280" fill="none">
+              {/* Ring band */}
+              <ellipse cx="150" cy="200" rx="90" ry="30" stroke="#c5cdd8" strokeWidth="18" fill="none" />
+              {/* Stone setting prongs */}
+              <circle cx="150" cy="120" r="52" fill="#e8edf3" stroke="#c5cdd8" strokeWidth="2" />
+              {/* Facets */}
+              <polygon points="150,72 190,105 175,155 125,155 110,105" fill="white" stroke="#d0d8e4" strokeWidth="1" />
+              <polygon points="150,72 175,105 150,90" fill="#e8edf3" stroke="#d0d8e4" strokeWidth="0.5" />
+              <polygon points="175,105 190,105 175,155" fill="#dde4ec" stroke="#d0d8e4" strokeWidth="0.5" />
+              <polygon points="125,105 110,105 125,155" fill="#dde4ec" stroke="#d0d8e4" strokeWidth="0.5" />
+              <polygon points="150,90 175,105 150,130 125,105" fill="white" stroke="#d0d8e4" strokeWidth="0.5" />
+              {/* Prongs */}
+              {[0,72,144,216,288].map((angle, i) => (
+                <circle key={i} cx={150 + 52 * Math.cos((angle - 90) * Math.PI / 180)} cy={120 + 52 * Math.sin((angle - 90) * Math.PI / 180)} r="5" fill="#c5cdd8" />
               ))}
-            </div>
+            </svg>
           </div>
+        </div>
+      </section>
 
-          {/* Right: Ring image placeholder */}
-          <div className="flex items-center justify-center lg:justify-end">
-            <div className="relative w-80 h-80 lg:w-96 lg:h-96">
-              {/* Stylized diamond ring illustration */}
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center shadow-inner">
-                <svg viewBox="0 0 200 200" className="w-64 h-64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* Ring band */}
-                  <ellipse cx="100" cy="160" rx="60" ry="20" fill="none" stroke="#C0A060" strokeWidth="8" />
-                  <rect x="40" y="80" width="120" height="80" rx="4" fill="none" stroke="#C0A060" strokeWidth="8" />
-                  <ellipse cx="100" cy="80" rx="60" ry="20" fill="#C8A870" stroke="#C0A060" strokeWidth="8" />
-                  {/* Diamond */}
-                  <polygon points="100,20 140,65 100,90 60,65" fill="white" stroke="#d0d8e8" strokeWidth="1.5" />
-                  <polygon points="60,65 100,90 100,20" fill="#e8eef5" opacity="0.6" />
-                  <polygon points="140,65 100,90 100,20" fill="#dce5f0" opacity="0.6" />
-                  <line x1="100" y1="20" x2="100" y2="90" stroke="#ccd8e8" strokeWidth="0.8" />
-                  <line x1="60" y1="65" x2="140" y2="65" stroke="#ccd8e8" strokeWidth="0.8" />
-                  {/* Sparkles */}
-                  <text x="148" y="35" fontSize="14" fill="#FFD700">✦</text>
-                  <text x="40" y="50" fontSize="10" fill="#FFD700">✦</text>
-                  <text x="155" y="70" fontSize="8" fill="#FFD700">·</text>
-                </svg>
-              </div>
-            </div>
-          </div>
+      {/* Press logos */}
+      <section className="py-8 border-b border-gray-100">
+        <div className="max-w-3xl mx-auto px-6 flex items-center justify-center gap-10 flex-wrap">
+          {['The New York Times', 'NEW YORK POST', 'Forbes', 'USA TODAY'].map((name) => (
+            <span key={name} className="text-gray-300 font-semibold text-sm tracking-wide" style={{ fontFamily: name === 'The New York Times' ? 'Georgia, serif' : 'inherit' }}>
+              {name}
+            </span>
+          ))}
         </div>
       </section>
 
       {/* Trust strip */}
-      <section className="border-t border-gray-100 py-5">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500 font-medium">
-            <div className="flex items-center gap-2">
-              <span className="text-green-500">★</span>
-              <span>#1 on Trustpilot</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>♡</span>
-              <span>100K+ happy couples</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>💡</span>
-              <span>*Save based on comp. value</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>✦</span>
-              <span>AI quality scores</span>
-            </div>
-          </div>
+      <section className="py-5 border-b border-gray-100">
+        <div className="max-w-4xl mx-auto px-6 flex items-center justify-center gap-10 flex-wrap text-sm text-gray-600">
+          <span className="flex items-center gap-2"><span className="text-green-500">★</span> #1 on Trustpilot</span>
+          <span className="flex items-center gap-2">♡ 100K+ happy couples</span>
+          <span className="flex items-center gap-2">💡 *Save based on comp. value</span>
+          <span className="flex items-center gap-2">✦ AI quality scores</span>
         </div>
       </section>
 
-      {/* Category carousel */}
-      <section className="py-10 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-6 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <a
-                key={cat}
-                href="#"
-                className="flex flex-col items-center gap-3 flex-shrink-0 group"
-              >
-                <div className="w-20 h-20 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:border-gray-300 transition-colors">
-                  <svg viewBox="0 0 50 50" width="36" height="36" fill="none">
-                    <circle cx="25" cy="25" r="18" fill="#e8eaf0" />
-                    <polygon points="25,10 38,22 25,38 12,22" fill="white" stroke="#c0c8d8" strokeWidth="1" />
-                  </svg>
+      {/* Categories */}
+      <section className="py-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-4 sm:grid-cols-8 gap-4">
+            {[
+              { label: 'Engagement rings', emoji: '💍' },
+              { label: 'Earrings', emoji: '✨' },
+              { label: 'Wedding rings', emoji: '💍' },
+              { label: 'Necklaces', emoji: '📿' },
+              { label: '1 carat diamonds', emoji: '💎' },
+              { label: 'Three stone', emoji: '💎' },
+              { label: 'Solitaire', emoji: '💍' },
+              { label: 'Hoops', emoji: '⭕' },
+            ].map((c) => (
+              <Link key={c.label} href="/rare-carat/search" className="flex flex-col items-center gap-2 group">
+                <div className="w-20 h-20 rounded-full bg-[#F0F4F8] flex items-center justify-center text-3xl group-hover:bg-[#E5EAF0] transition-colors">
+                  {c.emoji}
                 </div>
-                <span className="text-xs text-gray-600 font-medium text-center whitespace-nowrap">
-                  {cat}
-                </span>
-              </a>
+                <span className="text-xs text-center text-gray-600 font-medium">{c.label}</span>
+              </Link>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Demo notice */}
-      <div className="fixed bottom-4 right-4 bg-[#1B2D44] text-white text-xs px-4 py-2.5 rounded-full shadow-lg opacity-90">
-        🎯 Demo — Diamond Decision Advisor
-      </div>
     </div>
   );
 }
