@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, Suspense, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -92,6 +93,133 @@ function LabVsNaturalModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ─── Compare modal ────────────────────────────────────────────────────────────
+
+function CompareModal({ diamonds, onClose, onRemove }: {
+  diamonds: typeof MOCK_RESULTS;
+  onClose: () => void;
+  onRemove: (id: string) => void;
+}) {
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [onClose]);
+
+  const ROWS = [
+    { label: 'Price',          key: 'price',      fmt: (v: number) => `$${v.toLocaleString()}` },
+    { label: 'Comp. value',    key: 'compValue',   fmt: (v: number) => `$${v.toLocaleString()}` },
+    { label: 'Carat',          key: 'carat',       fmt: (v: number) => `${v.toFixed(2)} ct` },
+    { label: 'Shape',          key: 'shape',       fmt: (v: string) => v },
+    { label: 'Color',          key: 'color',       fmt: (v: string) => v },
+    { label: 'Clarity',        key: 'clarity',     fmt: (v: string) => v },
+    { label: 'Cut',            key: 'cut',         fmt: (v: string) => v },
+    { label: 'Quality score',  key: 'quality',     fmt: (v: string) => `✓ ${v}` },
+    { label: 'Certification',  key: 'cert',        fmt: (v: string) => v },
+  ] as const;
+
+  function best(key: string) {
+    if (diamonds.length < 2) return null;
+    const vals = diamonds.map((d) => (d as Record<string, unknown>)[key] as number);
+    if (typeof vals[0] !== 'number') return null;
+    const isPriceLike = key === 'price' || key === 'compValue';
+    const winnerVal = isPriceLike ? Math.min(...vals) : Math.max(...vals);
+    return diamonds.filter((d) => (d as Record<string, unknown>)[key] === winnerVal).map((d) => d.id);
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div
+        className="relative bg-white w-full sm:rounded-2xl shadow-2xl max-w-3xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+          <h2 className="text-lg font-bold text-[#1B2D44]">Compare Diamonds</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="px-6 py-5">
+          {/* Diamond image + title columns */}
+          <div className={`grid gap-4 mb-6 ${diamonds.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' : 'grid-cols-2'}`}>
+            {diamonds.map((d) => (
+              <div key={d.id} className="text-center">
+                <div className="relative h-48 rounded-xl overflow-hidden bg-[#F5F7FA] mb-3">
+                  <Image src={d.img} alt={`${d.carat}ct ${d.shape}`} fill className="object-cover" />
+                  <button
+                    onClick={() => onRemove(d.id)}
+                    className="absolute top-2 right-2 bg-white/80 hover:bg-white rounded-full w-6 h-6 flex items-center justify-center shadow text-gray-500 hover:text-red-500 transition-colors"
+                    title="Remove from compare"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+                <p className="font-bold text-[#1B2D44] text-sm">{d.carat.toFixed(2)} ct {d.shape}</p>
+                <p className="text-xs text-gray-500">{d.color} · {d.clarity} · {d.cut}</p>
+                <p className="text-xl font-bold text-gray-900 mt-1">${d.price.toLocaleString()}</p>
+              </div>
+            ))}
+            {/* Empty slot */}
+            {diamonds.length === 1 && (
+              <div className="border-2 border-dashed border-gray-200 rounded-xl h-48 flex flex-col items-center justify-center text-gray-400 text-sm gap-2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Add another diamond<br />to compare
+              </div>
+            )}
+          </div>
+
+          {/* Comparison table */}
+          <div className="border border-gray-200 rounded-xl overflow-hidden">
+            {ROWS.map((row, i) => {
+              const winners = best(row.key);
+              return (
+                <div key={row.label} className={`grid ${diamonds.length === 1 ? 'grid-cols-2' : 'grid-cols-3'} ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'}`}>
+                  <div className="px-4 py-3 text-xs font-semibold text-gray-500 border-r border-gray-100">{row.label}</div>
+                  {diamonds.map((d) => {
+                    const val = (d as Record<string, unknown>)[row.key];
+                    const isWinner = winners?.includes(d.id);
+                    return (
+                      <div key={d.id} className={`px-4 py-3 text-sm border-r border-gray-100 last:border-0 ${isWinner ? 'font-bold text-[#5BA832]' : 'text-gray-700'}`}>
+                        {row.fmt(val as never)}
+                        {isWinner && diamonds.length > 1 && <span className="ml-1 text-[10px] text-green-500">✓ better</span>}
+                      </div>
+                    );
+                  })}
+                  {diamonds.length === 1 && <div className="px-4 py-3 text-sm text-gray-300 italic">—</div>}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* CTAs */}
+          <div className={`grid gap-3 mt-6 ${diamonds.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+            {diamonds.map((d) => (
+              <Link
+                key={d.id}
+                href={`/rare-carat/diamond/${d.id}`}
+                className="bg-[#1B2D44] text-white font-semibold py-3 rounded-full text-center text-sm hover:bg-[#253f5e] transition-colors"
+              >
+                Choose {d.carat.toFixed(2)} ct — ${d.price.toLocaleString()}
+              </Link>
+            ))}
+          </div>
+
+          <p className="text-center text-xs text-gray-400 mt-3">
+            Not sure? <Link href="/rare-carat/quiz" className="text-[#4B5EFF] hover:underline" onClick={onClose}>Let our AI pick for you →</Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const SHAPES = [
@@ -138,16 +266,29 @@ const CUT_MEANINGS: Record<string, string> = {
   'Good': 'Good — reflects most light that enters the diamond',
 };
 
+// Real Unsplash loose diamond photos — consistent via photo ID
+const DIAMOND_IMAGES = [
+  'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500&h=500&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500&h=500&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500&h=500&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=500&h=500&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1600119574904-a03c88ee8cd5?w=500&h=500&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=500&h=500&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1589674781759-c21c37956a44?w=500&h=500&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1596944924616-7b38e7cfac36?w=500&h=500&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?w=500&h=500&fit=crop&q=85',
+];
+
 const MOCK_RESULTS = [
-  { id: 'oval-001', carat: 2.03, shape: 'Oval', color: 'I', clarity: 'VVS2', cut: 'Excellent Cut', price: 1005, compValue: 1450, quality: '18/18', label: 'Overall pick', labelBg: '#5BA832' },
-  { id: 'oval-002', carat: 2.59, shape: 'Oval', color: 'J', clarity: 'VS1', cut: 'Excellent Cut', price: 1350, compValue: 2000, quality: '18/18', label: 'Biggest size', labelBg: '#6D28D9' },
-  { id: 'oval-003', carat: 1.90, shape: 'Oval', color: 'D', clarity: 'VS1', cut: 'Excellent Cut', price: 1225, compValue: 1782, quality: '17/18', label: 'Highest quality', labelBg: '#1D4ED8' },
-  { id: 'oval-004', carat: 2.14, shape: 'Oval', color: 'H', clarity: 'VS2', cut: 'RC Ideal Cut', price: 1180, compValue: 1720, quality: '18/18', label: null, labelBg: null },
-  { id: 'oval-005', carat: 1.76, shape: 'Oval', color: 'G', clarity: 'SI1', cut: 'Excellent Cut', price: 890, compValue: 1310, quality: '17/18', label: null, labelBg: null },
-  { id: 'oval-006', carat: 2.31, shape: 'Oval', color: 'I', clarity: 'VS1', cut: 'RC Ideal Cut', price: 1420, compValue: 2100, quality: '18/18', label: null, labelBg: null },
-  { id: 'oval-007', carat: 1.52, shape: 'Oval', color: 'F', clarity: 'VVS1', cut: 'Excellent Cut', price: 1050, compValue: 1580, quality: '18/18', label: null, labelBg: null },
-  { id: 'oval-008', carat: 2.47, shape: 'Oval', color: 'H', clarity: 'VS2', cut: 'RC Ideal Cut', price: 1680, compValue: 2450, quality: '18/18', label: null, labelBg: null },
-  { id: 'oval-009', carat: 1.88, shape: 'Oval', color: 'J', clarity: 'SI1', cut: 'Excellent Cut', price: 820, compValue: 1240, quality: '16/18', label: null, labelBg: null },
+  { id: 'oval-001', carat: 2.03, shape: 'Oval', color: 'I', clarity: 'VVS2', cut: 'Excellent Cut', price: 1005, compValue: 1450, quality: '18/18', cert: 'IGI', label: 'Overall pick', labelBg: '#5BA832', img: DIAMOND_IMAGES[0] },
+  { id: 'oval-002', carat: 2.59, shape: 'Oval', color: 'J', clarity: 'VS1',  cut: 'Excellent Cut', price: 1350, compValue: 2000, quality: '18/18', cert: 'IGI', label: 'Biggest size',    labelBg: '#6D28D9', img: DIAMOND_IMAGES[1] },
+  { id: 'oval-003', carat: 1.90, shape: 'Oval', color: 'D', clarity: 'VS1',  cut: 'Excellent Cut', price: 1225, compValue: 1782, quality: '17/18', cert: 'GIA', label: 'Highest quality', labelBg: '#1D4ED8', img: DIAMOND_IMAGES[2] },
+  { id: 'oval-004', carat: 2.14, shape: 'Oval', color: 'H', clarity: 'VS2',  cut: 'RC Ideal Cut',  price: 1180, compValue: 1720, quality: '18/18', cert: 'IGI', label: null, labelBg: null, img: DIAMOND_IMAGES[3] },
+  { id: 'oval-005', carat: 1.76, shape: 'Oval', color: 'G', clarity: 'SI1',  cut: 'Excellent Cut', price:  890, compValue: 1310, quality: '17/18', cert: 'IGI', label: null, labelBg: null, img: DIAMOND_IMAGES[4] },
+  { id: 'oval-006', carat: 2.31, shape: 'Oval', color: 'I', clarity: 'VS1',  cut: 'RC Ideal Cut',  price: 1420, compValue: 2100, quality: '18/18', cert: 'GCAL',label: null, labelBg: null, img: DIAMOND_IMAGES[5] },
+  { id: 'oval-007', carat: 1.52, shape: 'Oval', color: 'F', clarity: 'VVS1', cut: 'Excellent Cut', price: 1050, compValue: 1580, quality: '18/18', cert: 'GIA', label: null, labelBg: null, img: DIAMOND_IMAGES[6] },
+  { id: 'oval-008', carat: 2.47, shape: 'Oval', color: 'H', clarity: 'VS2',  cut: 'RC Ideal Cut',  price: 1680, compValue: 2450, quality: '18/18', cert: 'IGI', label: null, labelBg: null, img: DIAMOND_IMAGES[7] },
+  { id: 'oval-009', carat: 1.88, shape: 'Oval', color: 'J', clarity: 'SI1',  cut: 'Excellent Cut', price:  820, compValue: 1240, quality: '16/18', cert: 'IGI', label: null, labelBg: null, img: DIAMOND_IMAGES[8] },
 ];
 
 // ─── Shape SVG ────────────────────────────────────────────────────────────────
@@ -234,35 +375,49 @@ function LabeledRangeSlider({
 }
 
 // ─── Diamond card ─────────────────────────────────────────────────────────────
-function DiamondCard({ d, saleBadge = false }: { d: typeof MOCK_RESULTS[0]; saleBadge?: boolean }) {
+function DiamondCard({
+  d,
+  saleBadge = false,
+  compareIds,
+  onToggleCompare,
+}: {
+  d: typeof MOCK_RESULTS[0];
+  saleBadge?: boolean;
+  compareIds: string[];
+  onToggleCompare: (id: string) => void;
+}) {
   const savings = Math.round((1 - d.price / d.compValue) * 100);
+  const inCompare = compareIds.includes(d.id);
+  const compareDisabled = !inCompare && compareIds.length >= 2;
+
   return (
-    <Link href={`/rare-carat/diamond/${d.id}`} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow group bg-white block">
-      <div className="relative bg-[#F5F7FA] h-44 flex items-center justify-center">
-        {saleBadge && (
-          <span className="absolute top-2 left-2 bg-[#E53E3E] text-white text-[10px] font-bold px-2 py-0.5 rounded">4th of July Sale</span>
-        )}
-        {d.label && (
-          <span className="absolute top-2 left-2 text-white text-[10px] font-bold px-2.5 py-1 rounded" style={{ backgroundColor: d.labelBg ?? '#1B2D44' }}>
-            {d.label}
-          </span>
-        )}
-        <button className="absolute top-2 right-2 text-gray-300 hover:text-red-400 transition-colors">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
-        </button>
-        {/* Diamond illustration */}
-        <svg viewBox="0 0 120 110" width="100" height="92" fill="none">
-          <ellipse cx="60" cy="58" rx="48" ry="46" fill="white" stroke="#d8e0ea" strokeWidth="1.5" />
-          <path d="M60,16 L92,44 L76,92 L44,92 L28,44 Z" fill="white" stroke="#c8d4e0" strokeWidth="1" />
-          <path d="M28,44 L60,44 L92,44" stroke="#dde6f0" strokeWidth="0.8" />
-          <path d="M60,16 L60,44" stroke="#dde6f0" strokeWidth="0.8" />
-          <path d="M60,16 L92,44 M60,16 L28,44" stroke="#e4ecf4" strokeWidth="0.6" />
-          <path d="M44,92 L60,44 L76,92" stroke="#dde6f0" strokeWidth="0.8" />
-          <ellipse cx="60" cy="58" rx="22" ry="21" fill="white" stroke="#e8eff7" strokeWidth="0.6" opacity="0.7" />
-        </svg>
-      </div>
+    <div className={`border rounded-lg overflow-hidden hover:shadow-md transition-all bg-white group ${inCompare ? 'border-[#4B5EFF] ring-2 ring-[#4B5EFF]/20' : 'border-gray-200'}`}>
+      {/* Image */}
+      <Link href={`/rare-carat/diamond/${d.id}`} className="block">
+        <div className="relative h-44 bg-[#F5F7FA]">
+          <Image
+            src={d.img}
+            alt={`${d.carat.toFixed(2)}ct ${d.shape} diamond`}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+          {saleBadge && !d.label && (
+            <span className="absolute top-2 left-2 bg-[#E53E3E] text-white text-[10px] font-bold px-2 py-0.5 rounded z-10">4th of July Sale</span>
+          )}
+          {d.label && (
+            <span className="absolute top-2 left-2 text-white text-[10px] font-bold px-2.5 py-1 rounded z-10" style={{ backgroundColor: d.labelBg ?? '#1B2D44' }}>
+              {d.label}
+            </span>
+          )}
+          <button className="absolute top-2 right-2 text-white/70 hover:text-red-400 transition-colors z-10 drop-shadow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+        </div>
+      </Link>
+
       <div className="p-3">
         <p className="font-semibold text-gray-900 text-sm leading-snug">
           {d.carat.toFixed(2)} Carat · {d.color} · {d.clarity}
@@ -271,12 +426,31 @@ function DiamondCard({ d, saleBadge = false }: { d: typeof MOCK_RESULTS[0]; sale
         <p className="text-xl font-bold text-gray-900">${d.price.toLocaleString()}</p>
         <p className="text-xs text-gray-400">
           Comp. value: <span className="line-through">${d.compValue.toLocaleString()}</span>
-          {' '}
-          <span className="text-green-600 font-medium">−{savings}%</span>
+          {' '}<span className="text-green-600 font-medium">−{savings}%</span>
         </p>
         <p className="text-xs text-green-600 font-medium mt-1">✓ {d.quality} quality</p>
+
+        {/* Compare checkbox */}
+        <button
+          onClick={() => onToggleCompare(d.id)}
+          disabled={compareDisabled}
+          className={`mt-3 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-md border text-xs font-medium transition-all ${
+            inCompare
+              ? 'border-[#4B5EFF] bg-[#f0f2ff] text-[#4B5EFF]'
+              : compareDisabled
+              ? 'border-gray-100 text-gray-300 cursor-not-allowed'
+              : 'border-gray-200 text-gray-500 hover:border-[#4B5EFF] hover:text-[#4B5EFF]'
+          }`}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            {inCompare
+              ? <><polyline points="20 6 9 17 4 12" /></>
+              : <><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></>}
+          </svg>
+          {inCompare ? 'Added to compare' : compareDisabled ? 'Max 2 selected' : 'Compare'}
+        </button>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -288,6 +462,15 @@ function SearchContent() {
 
   const [origin, setOrigin] = useState<'lab' | 'natural'>('lab');
   const [labModalOpen, setLabModalOpen] = useState(false);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareOpen, setCompareOpen] = useState(false);
+
+  function toggleCompare(id: string) {
+    setCompareIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : prev.length < 2 ? [...prev, id] : prev
+    );
+  }
+  const compareDiamonds = MOCK_RESULTS.filter((d) => compareIds.includes(d.id));
   const [selectedShape, setSelectedShape] = useState(initShape);
   const [colorIdx, setColorIdx] = useState(3);         // default H
   const [clarityIdx, setClarityIdx] = useState(3);     // default VS1
@@ -314,6 +497,13 @@ function SearchContent() {
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
 
       {labModalOpen && <LabVsNaturalModal onClose={() => setLabModalOpen(false)} />}
+      {compareOpen && compareDiamonds.length > 0 && (
+        <CompareModal
+          diamonds={compareDiamonds}
+          onClose={() => setCompareOpen(false)}
+          onRemove={(id) => setCompareIds((prev) => prev.filter((x) => x !== id))}
+        />
+      )}
 
       {/* ── Announcement bar ───────────────────────────────────── */}
       <div className="bg-[#8B1818] text-white text-xs py-2 px-4 flex items-center justify-between">
@@ -739,13 +929,17 @@ function SearchContent() {
               <span className="text-gray-400 text-sm">· Based on your filters</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {aiPicks.map((d) => <DiamondCard key={d.id} d={d} />)}
+              {aiPicks.map((d) => (
+                <DiamondCard key={d.id} d={d} compareIds={compareIds} onToggleCompare={toggleCompare} />
+              ))}
             </div>
           </div>
 
           {/* Regular results grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {regularResults.map((d, i) => <DiamondCard key={d.id} d={d} saleBadge={i < 3} />)}
+            {regularResults.map((d, i) => (
+              <DiamondCard key={d.id} d={d} saleBadge={i < 3} compareIds={compareIds} onToggleCompare={toggleCompare} />
+            ))}
           </div>
 
           <div className="mt-8 flex justify-center">
@@ -756,13 +950,31 @@ function SearchContent() {
         </main>
       </div>
 
-      {/* Compare bar */}
-      <div className="fixed bottom-4 left-4 z-50">
-        <button className="bg-[#D946EF] text-white font-semibold px-5 py-2.5 rounded-full shadow-lg hover:bg-[#c026d3] transition-colors flex items-center gap-2 text-sm">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-          Compare
-        </button>
-      </div>
+      {/* Floating compare bar */}
+      {compareIds.length > 0 && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#1B2D44] text-white px-5 py-3 rounded-full shadow-2xl">
+          <span className="text-sm font-medium">
+            {compareIds.length === 1 ? '1 diamond selected — pick one more' : '2 diamonds ready'}
+          </span>
+          {compareIds.length === 2 && (
+            <button
+              onClick={() => setCompareOpen(true)}
+              className="bg-white text-[#1B2D44] font-bold text-sm px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              Compare now →
+            </button>
+          )}
+          <button
+            onClick={() => setCompareIds([])}
+            className="text-white/60 hover:text-white ml-1"
+            title="Clear"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
