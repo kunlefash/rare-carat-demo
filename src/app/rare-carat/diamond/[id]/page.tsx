@@ -7,20 +7,27 @@ import { useRouter } from 'next/navigation';
 
 // ─── Mock data ─────────────────────────────────────────────────────────────────
 
+const P = 'https://images.pexels.com/photos';
+const IMGS = {
+  a: `${P}/4997548/pexels-photo-4997548.jpeg?auto=compress&cs=tinysrgb&w=800&h=800`,
+  b: `${P}/4997547/pexels-photo-4997547.jpeg?auto=compress&cs=tinysrgb&w=800&h=800`,
+};
+const BG = '#f4f3f1';
+
 const DIAMONDS: Record<string, {
   id: string; carat: number; shape: string; color: string; clarity: string;
   cut: string; price: number; compValue: number; quality: string; cert: string;
   img: string; imgBg: string; origin: string;
 }> = {
-  'oval-001': { id: 'oval-001', carat: 2.03, shape: 'Oval',  color: 'I', clarity: 'VVS2', cut: 'Excellent', price: 1005, compValue: 1450, quality: '17/18', cert: 'IGI',  img: '/diamonds/diamond-pear.jpg',           imgBg: '#ffffff', origin: 'Natural' },
-  'oval-002': { id: 'oval-002', carat: 2.59, shape: 'Oval',  color: 'J', clarity: 'VS1',  cut: 'Excellent', price: 1350, compValue: 2000, quality: '18/18', cert: 'IGI',  img: '/diamonds/diamond-round-sparkle.jpg',  imgBg: '#050505', origin: 'Natural' },
-  'oval-003': { id: 'oval-003', carat: 1.90, shape: 'Oval',  color: 'D', clarity: 'VS1',  cut: 'Excellent', price: 1225, compValue: 1782, quality: '17/18', cert: 'GIA',  img: '/diamonds/diamond-round-dark.jpg',     imgBg: '#111827', origin: 'Natural' },
-  'oval-004': { id: 'oval-004', carat: 2.14, shape: 'Oval',  color: 'H', clarity: 'VS2',  cut: 'RC Ideal',  price: 1180, compValue: 1720, quality: '18/18', cert: 'IGI',  img: '/diamonds/diamond-round-sparkle.jpg',  imgBg: '#050505', origin: 'Natural' },
-  'oval-005': { id: 'oval-005', carat: 1.76, shape: 'Oval',  color: 'G', clarity: 'SI1',  cut: 'Excellent', price:  890, compValue: 1310, quality: '17/18', cert: 'IGI',  img: '/diamonds/diamond-pear.jpg',           imgBg: '#ffffff', origin: 'Natural' },
-  'oval-006': { id: 'oval-006', carat: 2.31, shape: 'Oval',  color: 'I', clarity: 'VS1',  cut: 'RC Ideal',  price: 1420, compValue: 2100, quality: '18/18', cert: 'GCAL', img: '/diamonds/diamond-round-dark.jpg',     imgBg: '#111827', origin: 'Natural' },
-  'oval-007': { id: 'oval-007', carat: 1.52, shape: 'Oval',  color: 'F', clarity: 'VVS1', cut: 'Excellent', price: 1050, compValue: 1580, quality: '18/18', cert: 'GIA',  img: '/diamonds/diamond-round-sparkle.jpg',  imgBg: '#050505', origin: 'Natural' },
-  'oval-008': { id: 'oval-008', carat: 2.47, shape: 'Oval',  color: 'H', clarity: 'VS2',  cut: 'RC Ideal',  price: 1680, compValue: 2450, quality: '18/18', cert: 'IGI',  img: '/diamonds/diamond-round-dark.jpg',     imgBg: '#111827', origin: 'Natural' },
-  'oval-009': { id: 'oval-009', carat: 1.88, shape: 'Oval',  color: 'J', clarity: 'SI1',  cut: 'Excellent', price:  820, compValue: 1240, quality: '16/18', cert: 'IGI',  img: '/diamonds/diamond-pear.jpg',           imgBg: '#ffffff', origin: 'Natural' },
+  'oval-001': { id: 'oval-001', carat: 2.03, shape: 'Oval', color: 'I', clarity: 'VVS2', cut: 'Excellent', price: 1005, compValue: 1450, quality: '17/18', cert: 'IGI',  img: IMGS.a, imgBg: BG, origin: 'Natural' },
+  'oval-002': { id: 'oval-002', carat: 2.59, shape: 'Oval', color: 'J', clarity: 'VS1',  cut: 'Excellent', price: 1350, compValue: 2000, quality: '18/18', cert: 'IGI',  img: IMGS.b, imgBg: BG, origin: 'Natural' },
+  'oval-003': { id: 'oval-003', carat: 1.90, shape: 'Oval', color: 'D', clarity: 'VS1',  cut: 'Excellent', price: 1225, compValue: 1782, quality: '17/18', cert: 'GIA',  img: IMGS.a, imgBg: BG, origin: 'Natural' },
+  'oval-004': { id: 'oval-004', carat: 2.14, shape: 'Oval', color: 'H', clarity: 'VS2',  cut: 'RC Ideal',  price: 1180, compValue: 1720, quality: '18/18', cert: 'IGI',  img: IMGS.b, imgBg: BG, origin: 'Natural' },
+  'oval-005': { id: 'oval-005', carat: 1.76, shape: 'Oval', color: 'G', clarity: 'SI1',  cut: 'Excellent', price:  890, compValue: 1310, quality: '17/18', cert: 'IGI',  img: IMGS.a, imgBg: BG, origin: 'Natural' },
+  'oval-006': { id: 'oval-006', carat: 2.31, shape: 'Oval', color: 'I', clarity: 'VS1',  cut: 'RC Ideal',  price: 1420, compValue: 2100, quality: '18/18', cert: 'GCAL', img: IMGS.b, imgBg: BG, origin: 'Natural' },
+  'oval-007': { id: 'oval-007', carat: 1.52, shape: 'Oval', color: 'F', clarity: 'VVS1', cut: 'Excellent', price: 1050, compValue: 1580, quality: '18/18', cert: 'GIA',  img: IMGS.a, imgBg: BG, origin: 'Natural' },
+  'oval-008': { id: 'oval-008', carat: 2.47, shape: 'Oval', color: 'H', clarity: 'VS2',  cut: 'RC Ideal',  price: 1680, compValue: 2450, quality: '18/18', cert: 'IGI',  img: IMGS.b, imgBg: BG, origin: 'Natural' },
+  'oval-009': { id: 'oval-009', carat: 1.88, shape: 'Oval', color: 'J', clarity: 'SI1',  cut: 'Excellent', price:  820, compValue: 1240, quality: '16/18', cert: 'IGI',  img: IMGS.a, imgBg: BG, origin: 'Natural' },
 };
 
 const FALLBACK = DIAMONDS['oval-001'];
@@ -461,7 +468,7 @@ export default function DiamondDetailPage({
               >
                 {t.key === 'photo' && (
                   <div className="w-10 h-10 relative">
-                    <Image src={d.img} alt="diamond" fill className={d.imgBg === '#ffffff' ? 'object-contain' : 'object-cover rounded'} />
+                    <Image src={d.img} alt="diamond" fill className="object-contain" />
                   </div>
                 )}
                 {t.key === 'viewsize' && <span className="text-xl">✋</span>}
@@ -485,7 +492,7 @@ export default function DiamondDetailPage({
               <>
                 <Image
                   src={d.img} alt={`${d.carat}ct ${d.shape} diamond`} fill
-                  className={d.imgBg === '#ffffff' ? 'object-contain p-8' : 'object-cover'}
+                  className="object-contain p-8"
                 />
                 {/* Zoom controls */}
                 <div className="absolute top-3 right-3 flex flex-col gap-1">
