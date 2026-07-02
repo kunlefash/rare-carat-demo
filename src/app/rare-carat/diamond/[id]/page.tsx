@@ -7,11 +7,7 @@ import { useRouter } from 'next/navigation';
 
 // ─── Mock data ─────────────────────────────────────────────────────────────────
 
-const P = 'https://images.pexels.com/photos';
-const IMGS = {
-  a: `${P}/4997548/pexels-photo-4997548.jpeg?auto=compress&cs=tinysrgb&w=800&h=800`,
-  b: `${P}/4997547/pexels-photo-4997547.jpeg?auto=compress&cs=tinysrgb&w=800&h=800`,
-};
+const IMGS = { a: '/diamonds/diamond-1.jpg', b: '/diamonds/diamond-2.jpg' };
 const BG = '#f4f3f1';
 
 const DIAMONDS: Record<string, {
