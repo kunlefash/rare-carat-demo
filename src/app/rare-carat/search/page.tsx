@@ -289,9 +289,10 @@ const SYMMETRY_MEANINGS: Record<string, string> = {
   'Excellent': 'All facets align precisely — required for maximum sparkle',
 };
 
+const P = 'https://images.pexels.com/photos';
 const IMG = {
-  a: { src: '/diamonds/diamond-1.jpg', bg: '#f5f4f2' },
-  b: { src: '/diamonds/diamond-2.jpg', bg: '#f2f4f5' },
+  a: { src: `${P}/4997548/pexels-photo-4997548.jpeg?auto=compress&cs=tinysrgb&w=500&h=500`, bg: '#f5f4f2' },
+  b: { src: `${P}/4997547/pexels-photo-4997547.jpeg?auto=compress&cs=tinysrgb&w=500&h=500`, bg: '#f2f4f5' },
 };
 
 const MOCK_RESULTS = [
